@@ -918,10 +918,16 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 		}
 		String value = heights.encode();
 		String key = heightsKey(t);
-		if (!value.equals(configManager.getRSProfileConfiguration(TeleportPreTileConfig.GROUP, key)))
+		String saved = configManager.getRSProfileConfiguration(TeleportPreTileConfig.GROUP, key);
+		if (!value.equals(saved))
 		{
 			configManager.setRSProfileConfiguration(TeleportPreTileConfig.GROUP, key, value);
 			log.debug("{}: heights of {} raised or sloped marked tiles saved", key, heights.size());
+		}
+		if (heights.addsTo(TileHeights.decode(saved)))
+		{
+			// a height the next trip will use that it didn't know: flash the markers, as for other things learned
+			learned = new Learned(markers, false, new Blink(System.currentTimeMillis()));
 		}
 	}
 

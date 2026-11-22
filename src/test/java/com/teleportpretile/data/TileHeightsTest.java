@@ -2,7 +2,9 @@ package com.teleportpretile.data;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class TileHeightsTest
@@ -44,6 +46,20 @@ public class TileHeightsTest
 			(x, y, c) -> x == 9 ? null : (x == 2 ? -50 : -10));
 		assertEquals(1, h.size());
 		assertArrayEquals(new int[]{-40, -40, -40, -40}, h.at(1, 1));
+	}
+
+	@Test
+	public void newHeightsAreSomethingLearned()
+	{
+		int[][] marked = {{98, 50}, {101, 50}};
+		TileHeights first = TileHeights.learn(99, 50, marked, TileHeightsTest::slope);
+		assertTrue("first trip", first.addsTo(null));
+		assertFalse("the same again", TileHeights.learn(99, 50, marked, TileHeightsTest::slope).addsTo(first));
+		TileHeights more = TileHeights.learn(99, 50, new int[][]{{98, 50}, {101, 50}, {103, 52}}, TileHeightsTest::slope);
+		assertTrue("a marker added since", more.addsTo(first));
+		assertFalse("a marker removed since", first.addsTo(more));
+		TileHeights level = TileHeights.learn(1, 1, new int[][]{{2, 2}}, (x, y, c) -> -10);
+		assertFalse("only level ground: nothing to show", level.addsTo(null));
 	}
 
 	@Test

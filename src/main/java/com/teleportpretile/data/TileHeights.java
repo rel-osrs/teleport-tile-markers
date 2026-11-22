@@ -1,5 +1,6 @@
 package com.teleportpretile.data;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +83,23 @@ public final class TileHeights
 	{
 		int[] h = tiles.get(key(dx, dy));
 		return h != null ? h : FLAT;
+	}
+
+	/**
+	 * True when this knows a height that {@code before} didn't (a tile it didn't have, or a different height), so the
+	 * trip taught something new. {@code before} null: nothing was known.
+	 */
+	public boolean addsTo(TileHeights before)
+	{
+		for (Map.Entry<Long, int[]> e : tiles.entrySet())
+		{
+			int[] old = before == null ? null : before.tiles.get(e.getKey());
+			if (old == null || !Arrays.equals(old, e.getValue()))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public int size()

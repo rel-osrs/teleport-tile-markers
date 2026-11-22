@@ -161,9 +161,10 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "flashWhenLearned",
 		name = "Flash when learned",
 		description = "When a trip teaches the plugin something new<br>"
-			+ "(your house's layout, an instance, or where an<br>"
-			+ "item's last destination goes), flash the<br>"
-			+ "destination's markers 3 times when you land.",
+			+ "(your house's layout, an instance, the ground's<br>"
+			+ "height, or where an item's last destination<br>"
+			+ "goes), flash the destination's markers 3 times<br>"
+			+ "when you land.",
 		position = 11
 	)
 	default boolean flashWhenLearned()

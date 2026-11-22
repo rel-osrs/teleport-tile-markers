@@ -31,10 +31,10 @@ straight away, in the spot it will be once you arrive.
   - Into other instances (raids, minigames, boss rooms): the same way. Most are built the same every time, so
     after one trip the plugin remembers the instance and the tile you arrived on, per teleport, and the next trip
     shows your markers in it. The first trip there shows nothing.
-- **When it learns something** on a trip (your house's layout or arrival tile, or what a "last destination"
-  means), the destination's markers flash 3 times once you land, drawn on top of your tile markers. Nothing
-  flashes when what it saw is already known. *Forget learned data* forgets all of it for the account (it asks
-  first).
+- **When it learns something** on a trip (your house's layout or arrival tile, the ground's height under your
+  markers, or what a "last destination" means), the destination's markers flash 3 times once you land, drawn on
+  top of your tile markers. Nothing flashes when what it saw is already known (or the ground there is level).
+  *Forget learned data* forgets all of it for the account (it asks first).
   - Rides from a fixed place: levers, portals, charter ships, boats and ferries, canoes, hot air balloons, magic
     carpets, carts and lifts. A ride only counts when you click it near where it's boarded, and you may walk
     there first; "Walk here" instead cancels it.
