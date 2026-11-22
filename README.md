@@ -55,12 +55,6 @@ Your tile markers are only ever read, never changed.
 - **Toggle teleports** (Varrock/GE, Camelot/Seers', Watchtower/Yanille, house tablet) follow your current setting.
 - The markers disappear when you land and the Tile Markers plugin takes over.
 
-## Limits
-
-- Not covered yet: the Lake Molch, Great Conch and Burgh de Rott boats, Fossil Island rowboats, Wilderness obelisks,
-  eagles, the Abyss, Keldagrim's minecarts from Keldagrim, the Fairy Resistance Hideout ring, Banker's briefcase,
-  Evil eye and the clue compass.
-- Quest-only travel is left out.
 
 ## Feedback and support
 
