@@ -12,6 +12,13 @@ where it will be when you arrive.
 
 ![The flash when a place is learned](docs/learning.gif)
 
+## Usage tips
+
+Mark tiles with an invisible black outline and use the color override to make tiles only noticeable while teleporting.
+
+Use the override threshold to signal to the plugin what tiles you want to show or not. 
+Adjust the opacity of your ground marker tiles to fit within, or outside of the threshold you set.
+
 ## Settings
 
 | Setting | Default | What it does |
@@ -45,7 +52,7 @@ Your tile markers are only ever read, never changed.
 - **It reads your clicks.** Spells, tablets, scrolls, jewellery and capes (worn, in the inventory or from a
   sub-menu), item dialogs, fairy rings, spirit trees, gliders, quetzals, minecarts, your house's jewellery box,
   portal nexus and mounted glory, and rides like boats, levers and carpets. About 1,440 destinations in all.
-- **Random landings:** about 200 teleports have a random destination tile; an approximation will be given in this
+- **Random landings:** about 200 teleports have a random destination tile. an approximation will be given in this
   case and your tiles will appear with a fuzzy outline.
 - **It learns as you go:**
   - your house and other instances will learn the exact location of the tiles after one trip inside.
