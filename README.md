@@ -1,6 +1,6 @@
 # Teleport Tile Markers
 
-Shows your **Tile Markers** at a teleport's destination *while you're still teleporting*, so your mouse is in place
+Shows your **existing Tile Markers** at a teleport's destination *while you're still teleporting*, so your mouse is in place
 before you land.
 
 Mark the tile in front of the Edgeville bank, rub your glory, pick Edgeville, and the marker appears straight away
