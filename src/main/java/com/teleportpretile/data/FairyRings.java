@@ -40,19 +40,28 @@ public final class FairyRings
 	}
 
 	/**
-	 * The code a click on a fairy ring goes to without the dials: "Last-destination (CKS)" or "Zanaris"; null for
-	 * any other click.
+	 * The code a click on a fairy ring goes to without the dials: "Last-destination (CKS)", "Zanaris", or a code
+	 * saved in its "Favourites" sub-menu ("CKS"); null for any other click (an empty favourite shows "Favourite 1").
 	 */
 	public static String codeOfOption(String option, String target)
 	{
+		String opt = Text.clean(option);
+		if (Text.clean(target).isEmpty() && isCode(opt))
+		{
+			// a favourite picked from the ring's sub-menu, in case the ring's name can't be found for it
+			return opt.toUpperCase();
+		}
 		if (!Text.key(target).equals("fairy ring"))
 		{
 			return null;
 		}
-		String opt = Text.clean(option);
 		if (opt.equalsIgnoreCase("Zanaris"))
 		{
 			return ZANARIS;
+		}
+		if (isCode(opt))
+		{
+			return opt.toUpperCase();
 		}
 		Matcher m = LAST.matcher(opt);
 		return opt.toLowerCase().startsWith("last-destination") && m.find() ? m.group(1).toUpperCase() : null;

@@ -52,6 +52,48 @@ public class TeleportCatalogTest
 	}
 
 	@Test
+	public void inventorySubMenuWithTheItemsName()
+	{
+		// "Rub" then "Edgeville" in the inventory comes with no target, so the plugin passes the item's name instead
+		assertTrue(catalog.started("Edgeville", "", 1712).isEmpty());
+		String[] glories = {"Amulet of glory(1)", "Amulet of glory(4)", "Amulet of glory(6)", "Amulet of glory(t4)",
+			"Amulet of eternal glory"};
+		for (String name : glories)
+		{
+			Teleport t = one(catalog.started("Edgeville", name, -1), varbits());
+			assertEquals(name, 3087, t.getX());
+			assertEquals(name, 3496, t.getY());
+		}
+		Teleport karamja = one(catalog.started("Karamja", "Amulet of glory(4)", 1712), varbits());
+		assertEquals(2918, karamja.getX());
+	}
+
+	@Test
+	public void wornSubMenuWithTheItemsName()
+	{
+		// "Teleports" then a place on a worn Max cape: the item id (or, failing that, the slot's name) names the cape
+		Teleport byId = one(catalog.started("Warrior's Guild", "Max cape", 13280), varbits());
+		assertEquals(2865, byId.getX());
+		Teleport byName = one(catalog.started("Fishing Guild", "<col=ff9040>Max cape</col>", -1), varbits());
+		assertEquals(2604, byName.getX());
+	}
+
+	@Test
+	public void everyChoiceIsRecognisedFromASubMenuOnceNamed()
+	{
+		// any sub-menu entry is its choice clicked on the item or object: each one in the data has to be found that way
+		for (Teleport t : catalog.all())
+		{
+			MenuSpec m = t.getMenu();
+			if (m.getStyle() != MenuSpec.Style.CHOICE || m.getTarget().isEmpty())
+			{
+				continue;
+			}
+			assertTrue(t.getName(), catalog.started(m.getChoice(), m.getTarget(), -1).contains(t));
+		}
+	}
+
+	@Test
 	public void spellCastFromTheSpellbook()
 	{
 		Teleport t = one(catalog.started("Cast", "<col=00ff00>Varrock Teleport</col>", -1), varbits());

@@ -3,6 +3,7 @@ package com.teleportpretile;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.inject.Provides;
+import com.teleportpretile.data.ClickedName;
 import com.teleportpretile.data.DialogKeys;
 import com.teleportpretile.data.FairyRings;
 import com.teleportpretile.data.HouseLayout;
@@ -30,6 +31,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.ObjectComposition;
 import net.runelite.api.Player;
 import net.runelite.api.WorldView;
 import net.runelite.api.coords.LocalPoint;
@@ -191,8 +193,12 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 	public void onMenuOptionClicked(MenuOptionClicked e)
 	{
 		String option = e.getMenuOption();
-		String target = e.getMenuTarget();
 		int itemId = e.getItemId();
+		String target = ClickedName.of(e.getMenuTarget(),
+			() -> itemId > 0 ? client.getItemDefinition(itemId).getName() : null,
+			() -> e.getWidget() != null ? e.getWidget().getName() : null,
+			() -> objectName(e),
+			() -> e.getMenuEntry().getNpc() != null ? e.getMenuEntry().getNpc().getName() : null);
 
 		Ghost g = ghost;
 		if (g != null && g.getTracker().getTeleport().getKind() != Teleport.Kind.TELEPORT
@@ -274,6 +280,22 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 				target, itemId, e.getId(), e.getParam0(), e.getParam1(), w == null ? null : w.getText(),
 				w == null ? null : w.getName(), opened.isEmpty() ? "" : " (a list of " + opened.size() + " is open)");
 		}
+	}
+
+	/** The clicked object's name (as the player sees it, for objects that change with varbits), or null. */
+	private String objectName(MenuOptionClicked e)
+	{
+		if (!e.getMenuAction().name().startsWith("GAME_OBJECT_"))
+		{
+			return null;
+		}
+		ObjectComposition def = client.getObjectDefinition(e.getId());
+		if (def != null && def.getImpostorIds() != null)
+		{
+			ObjectComposition shown = def.getImpostor();
+			def = shown != null ? shown : def;
+		}
+		return def != null ? def.getName() : null;
 	}
 
 	/** Picking a dialog option or list entry with its key, as most players do. */

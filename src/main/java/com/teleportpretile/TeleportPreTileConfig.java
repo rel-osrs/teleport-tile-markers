@@ -104,9 +104,10 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "blurRandom",
 		name = "Blur random landings",
 		description = "For teleports that land on a random tile near the<br>"
-			+ "destination, draw the markers slightly blurred.<br>"
-			+ "They are placed as if you land in the middle of<br>"
-			+ "the area. Other teleports land exactly on their<br>tile.",
+			+ "destination, draw the markers with a soft blur<br>"
+			+ "around a sharp outline. They are placed as if<br>"
+			+ "you land in the middle of the area. Other<br>"
+			+ "teleports land exactly on their tile.",
 		position = 7
 	)
 	default boolean blurRandom()
@@ -115,12 +116,27 @@ public interface TeleportPreTileConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "blurDistance",
+		name = "Blur distance",
+		description = "How far the blur of random landings fades out<br>"
+			+ "from each marker's outline, as a share of a<br>"
+			+ "tile's width. The outline itself stays sharp.",
+		position = 8
+	)
+	@Range(min = 5, max = 100)
+	@Units(Units.PERCENT)
+	default int blurDistance()
+	{
+		return 30;
+	}
+
+	@ConfigItem(
 		keyName = "hideUncertain",
 		name = "Hide uncertain landings",
 		description = "Don't show the markers for teleports that can<br>"
 			+ "land the number of tiles below or more from<br>"
 			+ "where they are drawn. Zones whose size isn't<br>known yet are still shown.",
-		position = 8
+		position = 9
 	)
 	default boolean hideUncertain()
 	{
@@ -132,7 +148,7 @@ public interface TeleportPreTileConfig extends Config
 		name = "Hide when off by",
 		description = "With Hide uncertain landings on: hide the markers<br>"
 			+ "when the landing could be this many tiles or<br>more from where they are drawn.",
-		position = 9
+		position = 10
 	)
 	@Range(min = 1, max = 20)
 	@Units(" tiles")
@@ -148,7 +164,7 @@ public interface TeleportPreTileConfig extends Config
 			+ "(your house's layout, an instance, or where an<br>"
 			+ "item's last destination goes), flash the<br>"
 			+ "destination's markers 3 times when you land.",
-		position = 10
+		position = 11
 	)
 	default boolean flashWhenLearned()
 	{
@@ -162,7 +178,7 @@ public interface TeleportPreTileConfig extends Config
 			+ "account: your house's layout, instances and<br>"
 			+ "items' last destinations. Asks first; it can't<br>"
 			+ "be undone, and the next trip to each place<br>shows nothing until it's learned again.",
-		position = 11,
+		position = 12,
 		warning = "Forget everything Teleport Tile Markers has learned (your house's layout, instances and items'"
 			+ " last destinations)?\nThis can't be undone."
 	)
@@ -176,7 +192,7 @@ public interface TeleportPreTileConfig extends Config
 		description = "Draw the destination's markers in your own colours<br>"
 			+ "instead of the Tile Markers ones. This only<br>"
 			+ "changes how this plugin draws them; your tile<br>markers are never changed.",
-		position = 12
+		position = 13
 	)
 	String COLOURS = "colours";
 
@@ -184,7 +200,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "overrideColour",
 		name = "Override marker colour",
 		description = "Draw every destination marker's outline and<br>label in the colour below.",
-		position = 13,
+		position = 14,
 		section = COLOURS
 	)
 	default boolean overrideColour()
@@ -197,7 +213,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "markerColour",
 		name = "Marker colour",
 		description = "The outline and label colour used when Override<br>marker colour is on.",
-		position = 14,
+		position = 15,
 		section = COLOURS
 	)
 	default Color markerColour()
@@ -209,7 +225,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "overrideFill",
 		name = "Override fill colour",
 		description = "Fill every destination marker with the colour<br>below.",
-		position = 15,
+		position = 16,
 		section = COLOURS
 	)
 	default boolean overrideFill()
@@ -222,7 +238,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "fillColour",
 		name = "Fill colour",
 		description = "The fill colour used when Override fill colour is<br>on.",
-		position = 16,
+		position = 17,
 		section = COLOURS
 	)
 	default Color fillColour()
@@ -234,7 +250,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "overrideText",
 		name = "Override text colour",
 		description = "Draw every destination marker's label in the<br>colour below.",
-		position = 17,
+		position = 18,
 		section = COLOURS
 	)
 	default boolean overrideText()
@@ -247,7 +263,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "textColour",
 		name = "Text colour",
 		description = "The label colour used when Override text colour<br>is on.",
-		position = 18,
+		position = 19,
 		section = COLOURS
 	)
 	default Color textColour()
@@ -259,7 +275,7 @@ public interface TeleportPreTileConfig extends Config
 		name = "Override threshold",
 		description = "Only apply the colour overrides to some markers,<br>"
 			+ "chosen by their own outline opacity.",
-		position = 19
+		position = 20
 	)
 	String THRESHOLD = "threshold";
 
@@ -269,7 +285,7 @@ public interface TeleportPreTileConfig extends Config
 		description = "Only apply the colour overrides to markers whose<br>"
 			+ "own outline opacity is above, below or exactly<br>"
 			+ "the threshold. With Override when set to Any,<br>the overrides apply to every marker.",
-		position = 20,
+		position = 21,
 		section = THRESHOLD
 	)
 	default boolean overrideThreshold()
@@ -283,7 +299,7 @@ public interface TeleportPreTileConfig extends Config
 		description = "With Override threshold on: override markers<br>"
 			+ "whose outline opacity is above, below or exactly<br>"
 			+ "the threshold. Any overrides every marker and<br>ignores the threshold.",
-		position = 21,
+		position = 22,
 		section = THRESHOLD
 	)
 	default OverrideWhen overrideWhen()
@@ -296,7 +312,7 @@ public interface TeleportPreTileConfig extends Config
 		name = "Threshold",
 		description = "The outline opacity (alpha, 0-255 as in the<br>"
 			+ "colour pickers) that \"Override when\" compares<br>with.",
-		position = 22,
+		position = 23,
 		section = THRESHOLD
 	)
 	@Range(min = 0, max = 255)

@@ -33,12 +33,10 @@ class TeleportPreTileOverlay extends Overlay
 	private static final int HALF_TILE = Perspective.LOCAL_HALF_TILE_SIZE;
 	/** JAU14 to radians, for the camera angles outside GPU mode. */
 	private static final double JAU14 = 2 * Math.PI / 16384;
-	/** Most outlines drawn in one frame for the blur; fewer samples per marker when there are many markers. */
-	private static final int BLUR_BUDGET = 2000;
-	/** How far the blur reaches each way for a teleport the data says lands on a random tile, in tiles. */
-	private static final double BLUR_TILES = 0.25;
-	/** How opaque the blurred outline is in its middle, compared with a sharp outline. */
-	private static final double BLUR_PEAK = 0.7;
+	/** How opaque the blur is right next to the outline, compared with the outline itself. */
+	private static final double BLUR_PEAK = 0.6;
+	/** Most layers one marker's blur is drawn with. */
+	private static final int BLUR_LAYERS = 12;
 
 	private final Client client;
 	private final TeleportPreTilePlugin plugin;
@@ -209,17 +207,9 @@ class TeleportPreTileOverlay extends Overlay
 		Projector projector = projector();
 		Teleport teleport = ghost.getTracker().getTeleport();
 		boolean blur = config.blurRandom() && teleport.isRandomLanding();
-		double spreadX = blur ? BLUR_TILES : 0;
-		double spreadY = spreadX;
+		double blurTiles = config.blurDistance() / 100.0;
 
 		List<GroundMarkerReader.Marker> markers = ghost.getMarkers();
-		int nx = samples(spreadX);
-		int ny = samples(spreadY);
-		while (nx * ny * markers.size() > BLUR_BUDGET && (nx > 3 || ny > 3))
-		{
-			nx = Math.max(Math.min(nx, 3), nx - 2);
-			ny = Math.max(Math.min(ny, 3), ny - 2);
-		}
 
 		double opacity = config.opacity() / 100.0;
 		Style style = style();
@@ -247,18 +237,15 @@ class TeleportPreTileOverlay extends Overlay
 			{
 				continue;
 			}
-			g.setColor(withAlpha(fill, fill.getAlpha() * opacity * (blur ? 0.6 : 1)));
+			g.setColor(withAlpha(fill, fill.getAlpha() * opacity));
 			g.fill(center);
+			if (blur)
+			{
+				drawBlur(g, center, blurTiles * tileSize(center), color, opacity, style.width);
+			}
 			g.setStroke(stroke);
-			if (!blur)
-			{
-				g.setColor(withAlpha(color, color.getAlpha() * opacity));
-				g.draw(center);
-			}
-			else
-			{
-				drawBlurred(g, projector, center, cx, cy, z, spreadX, spreadY, nx, ny, color, opacity, style.width);
-			}
+			g.setColor(withAlpha(color, color.getAlpha() * opacity));
+			g.draw(center);
 			if (m.getLabel() != null && !m.getLabel().isEmpty())
 			{
 				Color text = label(own, color);
@@ -270,79 +257,53 @@ class TeleportPreTileOverlay extends Overlay
 	}
 
 	/**
-	 * The outline drawn at many small offsets around its place, so it shows slightly blurred, reaching
-	 * {@code spreadX} and {@code spreadY} tiles each way. The offsets are weighted like a bell curve, so the blur is
-	 * strongest on the outline and fades out. Each stroke is about as wide as the gap between neighbouring offsets on
-	 * screen, so the strokes run together instead of showing as separate lines.
+	 * A soft glow around the outline that fades out like a bell curve (a gaussian blur) over {@code reachPx} pixels on
+	 * each side. It is drawn as the outline with ever narrower strokes on top of each other, the widest the faintest,
+	 * with each stroke's opacity worked out so the piled-up strokes give the curve's opacity at that distance. The
+	 * sharp outline is drawn over it afterwards.
 	 */
-	private static void drawBlurred(Graphics2D g, Projector projector, Polygon center, double cx, double cy, int z,
-		double spreadX, double spreadY, int nx, int ny, Color color, double opacity, float minWidth)
+	static void drawBlur(Graphics2D g, Polygon outline, double reachPx, Color color, double opacity, float lineWidth)
 	{
-		double[] ox = offsets(spreadX, nx);
-		double[] oy = offsets(spreadY, ny);
-		double[] wx = weights(ox, spreadX);
-		double[] wy = weights(oy, spreadY);
-		double sumX = 0;
-		double sumY = 0;
-		for (double w : wx)
-		{
-			sumX += w;
-		}
-		for (double w : wy)
-		{
-			sumY += w;
-		}
-		// along an edge the strokes with the same offset across it pile up; size them so the middle row reaches the
-		// peak opacity: 1 - (1 - a)^sum ~ peak
-		double each = -Math.log(1 - BLUR_PEAK) / Math.max(sumX, sumY);
-
-		double tilePx = tileSize(center);
-		double gap = Math.max(nx > 1 ? 2 * spreadX / (nx - 1) : 0, ny > 1 ? 2 * spreadY / (ny - 1) : 0) * tilePx;
-		g.setStroke(new BasicStroke((float) Math.max(minWidth, gap * 1.15), BasicStroke.CAP_ROUND,
-			BasicStroke.JOIN_ROUND));
+		double[] a = blurLayerAlphas(reachPx);
+		int n = a.length;
 		int baseAlpha = color.getAlpha();
-		for (int i = 0; i < nx; i++)
+		for (int k = n; k >= 1; k--)
 		{
-			for (int j = 0; j < ny; j++)
+			int alpha = (int) Math.round(baseAlpha * opacity * a[k - 1]);
+			if (alpha <= 0)
 			{
-				double a = 1 - Math.exp(-each * wx[i] * wy[j]);
-				int alpha = (int) Math.round(baseAlpha * opacity * Math.min(1, a));
-				if (alpha <= 0)
-				{
-					continue;
-				}
-				Polygon p = tile(projector, cx + ox[i] * TILE, cy + oy[j] * TILE, z);
-				if (p != null)
-				{
-					g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
-					g.draw(p);
-				}
+				continue;
 			}
+			float width = (float) (lineWidth + 2 * reachPx * k / n);
+			g.setStroke(new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+			g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
+			g.draw(outline);
 		}
 	}
 
-	/** {@code n} evenly spaced offsets from -spread to +spread (just 0 when n is 1). */
-	private static double[] offsets(double spread, int n)
+	/**
+	 * The opacity of each blur layer, nearest the outline first, for a blur reaching {@code reachPx} pixels. Layer k
+	 * (of n) covers out to k/n of the reach, so the band between layers k-1 and k starts (k-1)/n of the reach out; the
+	 * layers covering a band pile up to the bell curve's opacity at its start: peak * exp(-d²/2σ²) with σ a third of
+	 * the reach, so it is strongest against the outline and has all but faded at the far edge.
+	 */
+	static double[] blurLayerAlphas(double reachPx)
 	{
-		double[] o = new double[n];
-		for (int i = 0; i < n; i++)
+		int n = (int) Math.max(1, Math.min(BLUR_LAYERS, Math.round(reachPx / 1.5)));
+		double sigma = 1 / 3.0;
+		double[] target = new double[n + 2];
+		for (int k = 1; k <= n; k++)
 		{
-			o[i] = n == 1 ? 0 : -spread + 2 * spread * i / (n - 1);
+			double d = (k - 1) / (double) n;
+			target[k] = BLUR_PEAK * Math.exp(-0.5 * (d / sigma) * (d / sigma));
 		}
-		return o;
-	}
-
-	/** Bell curve weights, 1 in the middle and about 0.14 at the edge of the blur. */
-	private static double[] weights(double[] offsets, double spread)
-	{
-		double[] w = new double[offsets.length];
-		double sigma = Math.max(spread, 1e-6) / 2;
-		for (int i = 0; i < w.length; i++)
+		double[] a = new double[n];
+		for (int k = n; k >= 1; k--)
 		{
-			double t = offsets[i] / sigma;
-			w[i] = Math.exp(-0.5 * t * t);
+			// layers k..n together give target[k]: 1 - (1 - a_k)(1 - target[k + 1]) = target[k]
+			a[k - 1] = Math.max(0, 1 - (1 - target[k]) / (1 - target[k + 1]));
 		}
-		return w;
+		return a;
 	}
 
 	/** Roughly how many pixels one tile is across on screen, from its drawn outline. */
@@ -355,12 +316,6 @@ class TeleportPreTileOverlay extends Overlay
 			sum += Math.hypot(p.xpoints[j] - p.xpoints[i], p.ypoints[j] - p.ypoints[i]);
 		}
 		return sum / p.npoints;
-	}
-
-	/** Samples across a spread of {@code spread} tiles each way: odd, so one sits in the middle. */
-	private static int samples(double spread)
-	{
-		return spread <= 0 ? 1 : Math.min(11, 2 * (int) Math.ceil(spread * 8) + 1);
 	}
 
 	private static Polygon tile(Projector projector, double cx, double cy, int z)

@@ -53,6 +53,12 @@ public class NetworkAndRideTest
 		assertEquals("CKS", FairyRings.codeOfOption("Last-destination (CKS)", "<col=ffff>Fairy ring</col>"));
 		assertEquals("BKS", FairyRings.codeOfOption("Zanaris", "Fairy ring"));
 		assertNull(FairyRings.codeOfOption("Configure", "Fairy ring"));
+		// a code saved in the ring's "Favourites" sub-menu, with the ring's name found or the target left empty
+		assertEquals("AIP", FairyRings.codeOfOption("AIP", "Fairy ring"));
+		assertEquals("CKS", FairyRings.codeOfOption("<col=ffffff>CKS</col>", ""));
+		assertNull(FairyRings.codeOfOption("Favourite 1", "Fairy Ring"));
+		assertNull(FairyRings.codeOfOption("Favourite 1", ""));
+		assertNull(FairyRings.codeOfOption("AIP", "Bank booth"));
 		assertNull(FairyRings.codeOfOption("Last-destination (CKS)", "Spirit tree"));
 	}
 

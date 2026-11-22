@@ -6,7 +6,7 @@ A RuneLite plugin that shows the tiles you marked with the **Tile Markers** plug
 Mark the tile in front of the Edgeville bank booth, rub your glory, pick Edgeville, and the marker appears on screen
 straight away, in the spot it will be once you arrive.
 
-![Preview: an exact landing, and a random landing drawn slightly blurred](docs/preview.png)
+![Preview: an exact landing, and a random landing drawn with a soft blur](docs/preview.png)
 
 ## How it works
 
@@ -54,7 +54,8 @@ straight away, in the spot it will be once you arrive.
   east of you once you arrive. The plugin draws each destination marker that far from where you stand now, using
   your camera's angle and zoom, and takes the ground as flat at your height. It reads your markers straight from
   the Tile Markers plugin's saved data, using that plugin's colours, labels, border width and fill.
-- **Random landings.** Teleports that land in a zone the OSRS Wiki draws are drawn blurred, placed as if you
+- **Random landings.** Teleports that land in a zone the OSRS Wiki draws are drawn with a soft blur that fades out
+  from a sharp outline (like a gaussian blur; *Blur distance* sets how far), placed as if you
   land in the middle of the zone ("lands within 2 tiles of this point", or the middle of an outlined area). A
   zone belongs to the landing spot, not just the page that drew it: the Camelot Teleport spell lands in the zone
   the Camelot tablet's page draws, so both are blurred. That's about 200 teleports. The zones were read from the OSRS
@@ -73,7 +74,8 @@ straight away, in the spot it will be once you arrive.
 | Show on minimap | on | Also draw the markers on the minimap. |
 | Opacity | 100% | How strongly the markers are drawn, compared with normal tile markers. |
 | Line thickness | 1 px | How thick the outlines are, in pixels. 0: the Tile Markers plugin's border width. |
-| Blur random landings | on | Draw markers slightly blurred for teleports with a random landing tile. |
+| Blur random landings | on | For teleports with a random landing tile, draw a soft blur around each marker's sharp outline. |
+| Blur distance | 30% | How far that blur fades out from the outline, as a share of a tile's width. |
 | Hide uncertain landings | off | Don't show markers for teleports that could land *Hide when off by* tiles or more away. |
 | Hide when off by | 2 tiles | How far off a landing can be before it is hidden. Zones of unknown size are still shown. |
 | Flash when learned | on | Flash the destination's markers 3 times when a trip teaches the plugin something new. |
