@@ -45,31 +45,21 @@ Your tile markers are only ever read, never changed.
 - **It reads your clicks.** Spells, tablets, scrolls, jewellery and capes (worn, in the inventory or from a
   sub-menu), item dialogs, fairy rings, spirit trees, gliders, quetzals, minecarts, your house's jewellery box,
   portal nexus and mounted glory, and rides like boats, levers and carpets. About 1,440 destinations in all.
-- **Never a guess.** If a click could go to more than one place and the plugin can't tell which, it shows nothing.
-- **Random landings** (about 200 teleports, from the OSRS Wiki's landing zones) are drawn blurred around the
-  middle of the zone. Everything else lands exactly on its tile.
-- **It learns as you go**, per account:
-  - your house and other instances, after one trip inside;
-  - the ground's height at a destination, after one trip there;
+- **Random landings:** about 200 teleports have a random destination tile; an approximation will be given in this
+  case and your tiles will appear with a fuzzy outline.
+- **It learns as you go:**
+  - your house and other instances will learn the exact location of the tiles after one trip inside.
+  - each tile's ground's height will be learned after you have been there once.
   - where "last destination" items (quetzal whistle, Ring of the elements, Pharaoh's sceptre) go, after you've used
     their normal options.
 
-  The first trip shows nothing (or flat markers). When something new is learned, the markers flash: in your
-  override colour, or each marker's own colour inverted.
+  The first trip shows nothing. The markers flash when something was learned.
 - **Toggle teleports** (Varrock/GE, Camelot/Seers', Watchtower/Yanille, house tablet) follow your current setting.
 - The markers disappear when you land and the Tile Markers plugin takes over.
 
-## Limits
-
-- Not covered yet: the Lake Molch, Great Conch and Burgh de Rott boats, Fossil Island rowboats, Wilderness obelisks,
-  eagles, the Abyss, Keldagrim's minecarts from Keldagrim, the Fairy Resistance Hideout ring, Banker's briefcase,
-  Evil eye and the clue compass.
-- Quest-only travel is left out.
-
 ## Feedback and support
 
-Bugs, wrong tiles or ideas: join the Discord server at [https://discord.gg/E6tRDDzYxW](https://discord.gg/E6tRDDzYxW)
-and post in the Teleport Tile Markers channels.
+Bugs, wrong tiles or ideas: join the Discord server at [https://discord.gg/E6tRDDzYxW](https://discord.gg/E6tRDDzYxW).
 
 ## Building
 
