@@ -6,7 +6,11 @@ before you land.
 Mark the tile in front of the Edgeville bank, rub your glory, pick Edgeville, and the marker appears straight away
 where it will be when you arrive.
 
-![Teleport Tile Markers preview](docs/preview.png)
+![Rubbing a glory to Edgeville](docs/glory.gif)
+
+![A fairy ring trip](docs/fairy-ring.gif)
+
+![The flash when a place is learned](docs/learning.gif)
 
 ## Settings
 
@@ -55,6 +59,12 @@ Your tile markers are only ever read, never changed.
 - **Toggle teleports** (Varrock/GE, Camelot/Seers', Watchtower/Yanille, house tablet) follow your current setting.
 - The markers disappear when you land and the Tile Markers plugin takes over.
 
+## Limits
+
+- Not covered yet: the Lake Molch, Great Conch and Burgh de Rott boats, Fossil Island rowboats, Wilderness obelisks,
+  eagles, the Abyss, Keldagrim's minecarts from Keldagrim, the Fairy Resistance Hideout ring, Banker's briefcase,
+  Evil eye and the clue compass.
+- Quest-only travel is left out.
 
 ## Feedback and support
 
