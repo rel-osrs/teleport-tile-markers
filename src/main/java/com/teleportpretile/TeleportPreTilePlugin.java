@@ -11,6 +11,7 @@ import com.teleportpretile.data.LastDestination;
 import com.teleportpretile.data.Teleport;
 import com.teleportpretile.data.TeleportCatalog;
 import com.teleportpretile.data.TeleportTracker;
+import com.teleportpretile.data.TileHeights;
 import com.teleportpretile.data.Text;
 import com.teleportpretile.render.Blink;
 import java.awt.Component;
@@ -32,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.ObjectComposition;
+import net.runelite.api.Perspective;
 import net.runelite.api.Player;
 import net.runelite.api.WorldView;
 import net.runelite.api.coords.LocalPoint;
@@ -66,11 +68,13 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 	private static final int CHOICE_TICKS = 100;
 	/** A landing further than this from the teleport's destination (in tiles) wasn't that teleport. */
 	private static final int LANDING_TILES = 12;
+	private static final int HALF_TILE = Perspective.LOCAL_HALF_TILE_SIZE;
 
 	/**
 	 * The teleport in progress and the destination markers to draw for it, placed around (centerX, centerY), the tile
 	 * the player will land on. For the house or another instance these are scene tiles of it as last seen, not
-	 * world tiles.
+	 * world tiles. {@code heights}: the ground's height at the markers, learned on an earlier trip; null to draw them
+	 * flat.
 	 */
 	@Value
 	static class Ghost
@@ -79,6 +83,7 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 		List<GroundMarkerReader.Marker> markers;
 		int centerX;
 		int centerY;
+		TileHeights heights;
 	}
 
 
@@ -107,6 +112,11 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 	 */
 	private static final String INSTANCE_PREFIX = "instance.";
 	private static final String INSTANCE_ENTRY = "arrival";
+	/**
+	 * Per-account config key prefix, then a landing tile "x_y_plane", for the ground's height at the marked tiles
+	 * around it (see TileHeights), learned on arrival.
+	 */
+	private static final String HEIGHTS_PREFIX = "heights.";
 
 	@Inject
 	private Client client;
@@ -501,7 +511,7 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 			}
 			// the house (and other instances) may first put the player somewhere while it loads and move them a tick
 			// or two later: the arrival tile is taken once they stay put
-			settling = new Settling(t.isHouse() ? HOUSE_KEY : INSTANCE_PREFIX + t.getId(),
+			settling = new Settling(t, t.isHouse() ? HOUSE_KEY : INSTANCE_PREFIX + t.getId(),
 				t.isHouse() ? t.getHouseEntry() : INSTANCE_ENTRY, !t.isHouse(), tick);
 			settle(tick);
 		}
@@ -514,6 +524,7 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 	/** A trip's arrival waiting for the player to stay put before the instance and arrival tile are remembered. */
 	private static final class Settling
 	{
+		final Teleport teleport;
 		final String key;
 		final String entry;
 		final boolean forgetIfNot;
@@ -523,8 +534,9 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 		int lastPlane = -1;
 		int stillTicks;
 
-		Settling(String key, String entry, boolean forgetIfNot, int startTick)
+		Settling(Teleport teleport, String key, String entry, boolean forgetIfNot, int startTick)
 		{
+			this.teleport = teleport;
 			this.key = key;
 			this.entry = entry;
 			this.forgetIfNot = forgetIfNot;
@@ -573,6 +585,10 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 			log.debug("{} ({}): the player kept moving after arriving; not saved", st.key, st.entry);
 			return;
 		}
+		if (!st.teleport.isHouse() && !wv.isInstance())
+		{
+			learnHeights(st.teleport, wv);
+		}
 		if (rememberInstance(st.key, st.entry, st.forgetIfNot))
 		{
 			HouseLayout layout = loadLayout(st.key);
@@ -605,7 +621,8 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 			groundMarkers.invalidate();
 			refreshMarkers();
 		}
-		else if (TeleportPreTileConfig.GROUP.equals(e.getGroup()) && "drawDistance".equals(e.getKey()))
+		else if (TeleportPreTileConfig.GROUP.equals(e.getGroup())
+			&& ("drawDistance".equals(e.getKey()) || "learnHeights".equals(e.getKey())))
 		{
 			refreshMarkers();
 		}
@@ -618,8 +635,8 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 	}
 
 	/**
-	 * Forgets everything learned on trips for this account: the house's layout, the instances, and what each item's
-	 * "last destination" means. The player's tile markers are not touched.
+	 * Forgets everything learned on trips for this account: the house's layout, the instances, the ground's heights,
+	 * and what each item's "last destination" means. The player's tile markers are not touched.
 	 */
 	private void forgetLearned()
 	{
@@ -630,7 +647,7 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 		{
 			for (String key : configManager.getRSProfileConfigurationKeys(group, profile, ""))
 			{
-				if (key.equals(HOUSE_KEY) || key.startsWith(INSTANCE_PREFIX))
+				if (key.equals(HOUSE_KEY) || key.startsWith(INSTANCE_PREFIX) || key.startsWith(HEIGHTS_PREFIX))
 				{
 					configManager.unsetRSProfileConfiguration(group, key);
 					forgotten++;
@@ -729,9 +746,9 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 			{
 				List<GroundMarkerReader.Marker> markers = houseMarkers(instance, at);
 				log.debug("instance: {} markers around scene tile {},{} plane {}", markers.size(), at[0], at[1], at[2]);
-				return new Ghost(tracker, markers, at[0], at[1]);
+				return new Ghost(tracker, markers, at[0], at[1], null);
 			}
-			return new Ghost(tracker, markersFor(t), t.getX(), t.getY());
+			return new Ghost(tracker, markersFor(t), t.getX(), t.getY(), loadHeights(t));
 		}
 		// the house: the markers of the house as last seen, around the tile the player arrived on then. The first
 		// trip shows nothing (tracked all the same, so the layout is learned when the player lands)
@@ -740,12 +757,12 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 		if (at == null)
 		{
 			log.debug("house ({}): layout not seen yet, learning it on arrival", t.getHouseEntry());
-			return new Ghost(tracker, Collections.emptyList(), 0, 0);
+			return new Ghost(tracker, Collections.emptyList(), 0, 0, null);
 		}
 		List<GroundMarkerReader.Marker> markers = houseMarkers(house, at);
 		log.debug("house ({}): {} markers around scene tile {},{} plane {}", t.getHouseEntry(), markers.size(), at[0],
 			at[1], at[2]);
-		return new Ghost(tracker, markers, at[0], at[1]);
+		return new Ghost(tracker, markers, at[0], at[1], null);
 	}
 
 	/**
@@ -839,6 +856,73 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 	private List<GroundMarkerReader.Marker> markersFor(Teleport t)
 	{
 		return groundMarkers.around(t.getX(), t.getY(), t.getPlane(), config.drawDistance());
+	}
+
+	private static String heightsKey(Teleport t)
+	{
+		return HEIGHTS_PREFIX + t.getX() + "_" + t.getY() + "_" + t.getPlane();
+	}
+
+	/** The ground's heights at this teleport's landing spot from an earlier trip, or null (draw flat). */
+	private TileHeights loadHeights(Teleport t)
+	{
+		if (!config.learnHeights())
+		{
+			return null;
+		}
+		return TileHeights.decode(configManager.getRSProfileConfiguration(TeleportPreTileConfig.GROUP, heightsKey(t)));
+	}
+
+	/**
+	 * Just landed from this teleport on the main map and stayed put: remember the ground's height under the marked
+	 * tiles around its landing spot, for the next trip. Done on every trip, so markers added since are learned too.
+	 */
+	private void learnHeights(Teleport t, WorldView wv)
+	{
+		Player player = client.getLocalPlayer();
+		if (!config.learnHeights() || player == null)
+		{
+			return;
+		}
+		WorldPoint at = player.getWorldLocation();
+		if (at.getPlane() != t.getPlane()
+			|| Math.max(Math.abs(at.getX() - t.getX()), Math.abs(at.getY() - t.getY())) > LANDING_TILES)
+		{
+			return;
+		}
+		List<GroundMarkerReader.Marker> markers = markersFor(t);
+		int[][] marked = new int[markers.size()][];
+		for (int i = 0; i < marked.length; i++)
+		{
+			marked[i] = new int[]{markers.get(i).getX(), markers.get(i).getY()};
+		}
+		int plane = t.getPlane();
+		TileHeights heights = TileHeights.learn(t.getX(), t.getY(), marked, (x, y, corner) ->
+		{
+			LocalPoint lp = LocalPoint.fromWorld(wv, x, y);
+			if (lp == null)
+			{
+				return null;
+			}
+			int lx = lp.getX() + (corner == 1 || corner == 2 ? HALF_TILE : -HALF_TILE);
+			int ly = lp.getY() + (corner >= 2 ? HALF_TILE : -HALF_TILE);
+			if (lx < 0 || ly < 0 || (lx >> 7) >= wv.getSizeX() || (ly >> 7) >= wv.getSizeY())
+			{
+				return null;
+			}
+			return Perspective.getTileHeight(client, new LocalPoint(lx, ly, wv), plane);
+		});
+		if (heights == null)
+		{
+			return;
+		}
+		String value = heights.encode();
+		String key = heightsKey(t);
+		if (!value.equals(configManager.getRSProfileConfiguration(TeleportPreTileConfig.GROUP, key)))
+		{
+			configManager.setRSProfileConfiguration(TeleportPreTileConfig.GROUP, key, value);
+			log.debug("{}: heights of {} raised or sloped marked tiles saved", key, heights.size());
+		}
 	}
 
 	private void refreshMarkers()

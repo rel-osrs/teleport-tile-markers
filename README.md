@@ -52,8 +52,14 @@ straight away, in the spot it will be once you arrive.
     then. Until it has seen a value, "last destination" shows nothing.
 - **Drawing the markers.** The camera follows you, so a tile 5 east of where you'll land will be drawn 5 tiles
   east of you once you arrive. The plugin draws each destination marker that far from where you stand now, using
-  your camera's angle and zoom, and takes the ground as flat at your height. It reads your markers straight from
-  the Tile Markers plugin's saved data, using that plugin's colours, labels, border width and fill.
+  your camera's angle and zoom. It reads your markers straight from the Tile Markers plugin's saved data, using
+  that plugin's colours, labels, border width and fill.
+- **Ground height.** The ground at a destination isn't known before you get there, so the first trip draws its
+  markers flat at your height. When you land, the plugin remembers how high the ground is under the marked tiles
+  around you (per account; only raised or sloped tiles take any space). Later trips draw each marker at its real
+  height, so markers on hills and steps line up. It's learned again on every trip, so markers you add later are
+  picked up next time. *Learn ground height* turns it off; *Forget learned data* forgets the heights too. Your house
+  and other instances are still drawn flat.
 - **Random landings.** Teleports that land in a zone the OSRS Wiki draws are drawn with a soft blur that fades out
   from a sharp outline (like a gaussian blur; *Blur distance* sets how far), placed as if you
   land in the middle of the zone ("lands within 2 tiles of this point", or the middle of an outlined area). A
@@ -79,7 +85,8 @@ straight away, in the spot it will be once you arrive.
 | Hide uncertain landings | off | Don't show markers for teleports that could land *Hide when off by* tiles or more away. |
 | Hide when off by | 2 tiles | How far off a landing can be before it is hidden. Zones of unknown size are still shown. |
 | Flash when learned | on | Flash the destination's markers 3 times when a trip teaches the plugin something new. |
-| Forget learned data | off | Tick to forget your house's layout, instances and items' last destinations (asks first, can't be undone). |
+| Learn ground height | on | Remember the ground's height under marked tiles when you land, and draw them at that height on later trips. Off: always flat. |
+| Forget learned data | off | Tick to forget your house's layout, instances, ground heights and items' last destinations (asks first, can't be undone). |
 | **Colours** | | |
 | Override marker colour | on | Draw every preview marker's outline and label in *Marker colour*. |
 | Marker colour | #FF00C8FF (light blue) | The outline and label colour for the override. |
@@ -97,8 +104,8 @@ plugin draws its preview; your marked tiles and their colours are never changed.
 
 ## Limits
 
-- Hills and stairs at the destination aren't known before you arrive, so markers on sloped ground can sit
-  slightly off until you land.
+- The first trip to a place, and markers added since your last trip there, are drawn flat, so on hills or steps
+  they can sit slightly off until you land. Your house and other instances are always drawn flat.
 - Not covered yet, as the data doesn't say how they're started or where they land: the Lake Molch, Great Conch
   and Burgh de Rott boats, Fossil Island's rowboats, Wilderness obelisks, eagles, the Abyss (a random spot on
   its outer ring), Keldagrim's minecarts from Keldagrim, and the Fairy Resistance Hideout's four-code ring.

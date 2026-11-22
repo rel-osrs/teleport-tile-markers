@@ -172,15 +172,30 @@ public interface TeleportPreTileConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "learnHeights",
+		name = "Learn ground height",
+		description = "The first time you land somewhere, remember how<br>"
+			+ "high the ground is under the marked tiles there.<br>"
+			+ "Later trips draw each marker at its real height,<br>"
+			+ "so hills and steps line up. Off: always flat.",
+		position = 12
+	)
+	default boolean learnHeights()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = FORGET_LEARNED,
 		name = "Forget learned data",
 		description = "Forget everything the plugin has learned on this<br>"
-			+ "account: your house's layout, instances and<br>"
-			+ "items' last destinations. Asks first; it can't<br>"
-			+ "be undone, and the next trip to each place<br>shows nothing until it's learned again.",
-		position = 12,
-		warning = "Forget everything Teleport Tile Markers has learned (your house's layout, instances and items'"
-			+ " last destinations)?\nThis can't be undone."
+			+ "account: your house's layout, instances, ground<br>"
+			+ "heights and items' last destinations. Asks first;<br>"
+			+ "it can't be undone, and the next trip to each<br>"
+			+ "place shows nothing (or flat markers) until it's<br>learned again.",
+		position = 13,
+		warning = "Forget everything Teleport Tile Markers has learned (your house's layout, instances, ground heights"
+			+ " and items' last destinations)?\nThis can't be undone."
 	)
 	default boolean forgetLearned()
 	{
@@ -192,7 +207,7 @@ public interface TeleportPreTileConfig extends Config
 		description = "Draw the destination's markers in your own colours<br>"
 			+ "instead of the Tile Markers ones. This only<br>"
 			+ "changes how this plugin draws them; your tile<br>markers are never changed.",
-		position = 13
+		position = 14
 	)
 	String COLOURS = "colours";
 
@@ -200,7 +215,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "overrideColour",
 		name = "Override marker colour",
 		description = "Draw every destination marker's outline and<br>label in the colour below.",
-		position = 14,
+		position = 15,
 		section = COLOURS
 	)
 	default boolean overrideColour()
@@ -213,7 +228,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "markerColour",
 		name = "Marker colour",
 		description = "The outline and label colour used when Override<br>marker colour is on.",
-		position = 15,
+		position = 16,
 		section = COLOURS
 	)
 	default Color markerColour()
@@ -225,7 +240,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "overrideFill",
 		name = "Override fill colour",
 		description = "Fill every destination marker with the colour<br>below.",
-		position = 16,
+		position = 17,
 		section = COLOURS
 	)
 	default boolean overrideFill()
@@ -238,7 +253,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "fillColour",
 		name = "Fill colour",
 		description = "The fill colour used when Override fill colour is<br>on.",
-		position = 17,
+		position = 18,
 		section = COLOURS
 	)
 	default Color fillColour()
@@ -250,7 +265,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "overrideText",
 		name = "Override text colour",
 		description = "Draw every destination marker's label in the<br>colour below.",
-		position = 18,
+		position = 19,
 		section = COLOURS
 	)
 	default boolean overrideText()
@@ -263,7 +278,7 @@ public interface TeleportPreTileConfig extends Config
 		keyName = "textColour",
 		name = "Text colour",
 		description = "The label colour used when Override text colour<br>is on.",
-		position = 19,
+		position = 20,
 		section = COLOURS
 	)
 	default Color textColour()
@@ -275,7 +290,7 @@ public interface TeleportPreTileConfig extends Config
 		name = "Override threshold",
 		description = "Only apply the colour overrides to some markers,<br>"
 			+ "chosen by their own outline opacity.",
-		position = 20
+		position = 21
 	)
 	String THRESHOLD = "threshold";
 
@@ -285,7 +300,7 @@ public interface TeleportPreTileConfig extends Config
 		description = "Only apply the colour overrides to markers whose<br>"
 			+ "own outline opacity is above, below or exactly<br>"
 			+ "the threshold. With Override when set to Any,<br>the overrides apply to every marker.",
-		position = 21,
+		position = 22,
 		section = THRESHOLD
 	)
 	default boolean overrideThreshold()
@@ -299,7 +314,7 @@ public interface TeleportPreTileConfig extends Config
 		description = "With Override threshold on: override markers<br>"
 			+ "whose outline opacity is above, below or exactly<br>"
 			+ "the threshold. Any overrides every marker and<br>ignores the threshold.",
-		position = 22,
+		position = 23,
 		section = THRESHOLD
 	)
 	default OverrideWhen overrideWhen()
@@ -312,7 +327,7 @@ public interface TeleportPreTileConfig extends Config
 		name = "Threshold",
 		description = "The outline opacity (alpha, 0-255 as in the<br>"
 			+ "colour pickers) that \"Override when\" compares<br>with.",
-		position = 23,
+		position = 24,
 		section = THRESHOLD
 	)
 	@Range(min = 0, max = 255)

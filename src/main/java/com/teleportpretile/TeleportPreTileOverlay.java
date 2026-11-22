@@ -232,7 +232,9 @@ class TeleportPreTileOverlay extends Overlay
 			Color color = outline(own);
 			Color fill = fill(own, fillAlpha);
 
-			Polygon center = tile(projector, cx, cy, z);
+			int[] rise = ghost.getHeights() == null ? null
+				: ghost.getHeights().at(m.getX() - ghost.getCenterX(), m.getY() - ghost.getCenterY());
+			Polygon center = tile(projector, cx, cy, z, rise);
 			if (center == null)
 			{
 				continue;
@@ -320,10 +322,20 @@ class TeleportPreTileOverlay extends Overlay
 
 	private static Polygon tile(Projector projector, double cx, double cy, int z)
 	{
-		double[] sw = projector.project(cx - HALF_TILE, cy - HALF_TILE, z);
-		double[] nw = projector.project(cx + HALF_TILE, cy - HALF_TILE, z);
-		double[] ne = projector.project(cx + HALF_TILE, cy + HALF_TILE, z);
-		double[] se = projector.project(cx - HALF_TILE, cy + HALF_TILE, z);
+		return tile(projector, cx, cy, z, null);
+	}
+
+	/**
+	 * The tile's outline on screen, with its corners raised or lowered by {@code rise} (heights relative to the
+	 * landing spot, in TileHeights' corner order), or flat at {@code z} when null.
+	 */
+	private static Polygon tile(Projector projector, double cx, double cy, int z, int[] rise)
+	{
+		int[] r = rise != null ? rise : new int[4];
+		double[] sw = projector.project(cx - HALF_TILE, cy - HALF_TILE, z + r[0]);
+		double[] nw = projector.project(cx + HALF_TILE, cy - HALF_TILE, z + r[1]);
+		double[] ne = projector.project(cx + HALF_TILE, cy + HALF_TILE, z + r[2]);
+		double[] se = projector.project(cx - HALF_TILE, cy + HALF_TILE, z + r[3]);
 		if (sw == null || nw == null || ne == null || se == null)
 		{
 			return null;
