@@ -56,7 +56,7 @@ Your tile markers are only ever read, never changed.
   case and your tiles will appear with a fuzzy outline.
 - **It learns as you go:**
   - your house and other instances will learn the exact location of the tiles after one trip inside.
-  - each tile's ground's height will be learned after you have been there once.
+  - each tile's ground's height will be learned after you have been there once. (toggleable)
   - where "last destination" items (quetzal whistle, Ring of the elements, Pharaoh's sceptre) go, after you've used
     their normal options.
 
