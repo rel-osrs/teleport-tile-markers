@@ -52,7 +52,7 @@ Your tile markers are only ever read, never changed.
 - **It reads your clicks.** Spells, tablets, scrolls, jewellery and capes (worn, in the inventory or from a
   sub-menu), item dialogs, fairy rings, spirit trees, gliders, quetzals, minecarts, your house's jewellery box,
   portal nexus and mounted glory, and rides like boats, levers and carpets. About 1,440 destinations in all.
-- **Random landings:** about 200 teleports have a random destination tile. an approximation will be given in this
+- **Random landings:** about 200 teleports have a random destination tile. An approximation will be given in this
   case and your tiles will appear with a fuzzy outline.
 - **It learns as you go:**
   - your house and other instances will learn the exact location of the tiles after one trip inside.

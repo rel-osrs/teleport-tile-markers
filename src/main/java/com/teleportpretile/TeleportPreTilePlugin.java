@@ -14,9 +14,6 @@ import com.teleportpretile.data.TeleportTracker;
 import com.teleportpretile.data.TileHeights;
 import com.teleportpretile.data.Text;
 import com.teleportpretile.render.Blink;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
 import lombok.Getter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -99,9 +93,6 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 		boolean sceneTiles;
 		Blink blink;
 	}
-
-	/** The Forget learned data setting's name, as the settings panel shows it. */
-	private static final String FORGET_LABEL = "Forget learned data";
 
 	/** Per-account config key for the player's house as last seen (see HouseLayout). */
 	private static final String HOUSE_KEY = "houseLayout";
@@ -662,43 +653,9 @@ public class TeleportPreTilePlugin extends Plugin implements KeyListener
 		ghost = null;
 		learned = null;
 		settling = null;
+		// untick the box again; an open settings panel shows it unticked once it is reopened
 		configManager.setConfiguration(group, TeleportPreTileConfig.FORGET_LEARNED, false);
-		// the settings panel doesn't redraw when a setting changes behind it, so untick its box too
-		SwingUtilities.invokeLater(TeleportPreTilePlugin::untickForgetInPanel);
 		log.debug("forgot {} learned entries", forgotten);
-	}
-
-	/**
-	 * Unticks the Forget learned data box in an open settings panel: the box next to the label with that name.
-	 * Unticking a box this way doesn't count as a click, so it changes no setting.
-	 */
-	private static void untickForgetInPanel()
-	{
-		for (Window window : Window.getWindows())
-		{
-			untickForget(window);
-		}
-	}
-
-	private static void untickForget(Container c)
-	{
-		for (Component child : c.getComponents())
-		{
-			if (child instanceof JLabel && FORGET_LABEL.equals(((JLabel) child).getText()))
-			{
-				for (Component sibling : c.getComponents())
-				{
-					if (sibling instanceof JCheckBox)
-					{
-						((JCheckBox) sibling).setSelected(false);
-					}
-				}
-			}
-			else if (child instanceof Container)
-			{
-				untickForget((Container) child);
-			}
-		}
 	}
 
 	/** The candidates with the rides boarded somewhere else than near the player left out. */
