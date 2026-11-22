@@ -33,7 +33,8 @@ straight away, in the spot it will be once you arrive.
     shows your markers in it. The first trip there shows nothing.
 - **When it learns something** on a trip (your house's layout or arrival tile, the ground's height under your
   markers, or what a "last destination" means), the destination's markers flash 3 times once you land, drawn on
-  top of your tile markers. Nothing flashes when what it saw is already known (or the ground there is level).
+  top of your tile markers: in *Marker colour* where the colour override applies, otherwise in each marker's own
+  colour inverted, so the flash stands out. Nothing flashes when what it saw is already known (or the ground there is level).
   *Forget learned data* forgets all of it for the account (it asks first).
   - Rides from a fixed place: levers, portals, charter ships, boats and ferries, canoes, hot air balloons, magic
     carpets, carts and lifts. A ride only counts when you click it near where it's boarded, and you may walk

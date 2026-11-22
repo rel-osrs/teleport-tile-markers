@@ -164,7 +164,8 @@ public interface TeleportPreTileConfig extends Config
 			+ "(your house's layout, an instance, the ground's<br>"
 			+ "height, or where an item's last destination<br>"
 			+ "goes), flash the destination's markers 3 times<br>"
-			+ "when you land.",
+			+ "when you land: in the override colour, or each<br>"
+			+ "marker's own colour inverted.",
 		position = 11
 	)
 	default boolean flashWhenLearned()

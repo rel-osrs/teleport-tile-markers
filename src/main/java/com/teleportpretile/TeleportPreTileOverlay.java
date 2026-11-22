@@ -98,14 +98,24 @@ class TeleportPreTileOverlay extends Overlay
 				continue;
 			}
 			Color own = m.getColor() != null ? m.getColor() : style.defaultColor;
-			Color color = outline(own);
-			g.setColor(fill(own, style.fillAlpha));
+			// with no colour override for this marker, flash in its own colour inverted, so it stands out from the
+			// player's tile marker drawn on the same tile
+			boolean overrideOutline = overridden(own) && config.overrideColour();
+			boolean overrideFill = overridden(own) && config.overrideFill();
+			Color color = overrideOutline ? config.markerColour() : inverted(own);
+			g.setColor(overrideFill ? config.fillColour() : withAlpha(inverted(own), style.fillAlpha));
 			g.fill(poly);
 			g.setStroke(stroke);
 			g.setColor(withAlpha(color, Math.max(color.getAlpha(), 160)));
 			g.draw(poly);
 		}
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+	}
+
+	/** The colour with its red, green and blue inverted (white for black, blue for yellow); alpha kept. */
+	static Color inverted(Color c)
+	{
+		return new Color(255 - c.getRed(), 255 - c.getGreen(), 255 - c.getBlue(), c.getAlpha());
 	}
 
 	/** The Tile Markers plugin's look: default colour, border width (or this plugin's Line thickness) and fill opacity. */
