@@ -3,7 +3,7 @@
 Shows your **existing Tile Markers** at a teleport's destination *while you're still teleporting*, so your mouse is in place
 before you land.
 
-Mark the tile in front of the Edgeville bank, rub your glory, pick Edgeville, and the marker appears straight away
+For example: mark the tile in front of the Edgeville bank, Teleport to Edgeville, and the marker appears straight away
 where it will be when you arrive.
 
 ![Rubbing a glory to Edgeville](https://raw.githubusercontent.com/rel-osrs/teleport-tile-markers/main/docs/glory.gif)
